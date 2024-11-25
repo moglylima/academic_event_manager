@@ -60,6 +60,10 @@ Este projeto foi desenvolvido como parte do **Trabalho Prático 1 (TP1)**, aplic
 3. Acesse a documentação:
     + Acesse http://127.0.0.1:8000/docs para visualizar a documentação interativa da API via Swagger.
 
+4. Caso queira conferir a versão em cloud:
+   + Acesse http://tp-persistencia.moglydev.com.br:8000/docs
+
+
 ## Estrutura do Projeto
 ```plaintext
     academic_event_manager/
