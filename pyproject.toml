@@ -1,10 +1,9 @@
 [project]
-name = "academic_event_manager"
+name = "academic-event-manager"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.115.5",
-    "uvicorn>=0.32.0",
 ]
