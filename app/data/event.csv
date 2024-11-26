@@ -1,6 +1,6 @@
 id,title,date,location,capacity,category
 65087685-c3e0-44b1-ac52-2fa609afa908,Tech Conference 2024,2024-12-10T09:00:00Z,"São Paulo Expo, São Paulo, BR",500,Technology
-ab564c5e-d0c0-43f7-8781-6011f5f9e323,Workshop de Fotografia,2024-11-30T14:00:00Z,"Centro Cultural, Rio de Janeiro, BR",30,Photography
+ab564c5e-d0c0-43f7-8781-6011f5f9e323,Workshop de Fotografia ,2024-11-30T14:00:00Z,"Centro Cultural, Rio de Janeiro, BR",300,Photography
 7b589f44-547a-4911-bf62-c5440d113899,Concerto de Piano,2024-12-15T20:00:00Z,"Sala São Paulo, São Paulo, BR",200,Music
 2ab190fb-7121-45b9-9290-f0338c140832,Hackathon Nacional,2024-12-01T08:00:00Z,"Campus Digital, Recife, BR",200,Technology
 502dc282-8e18-4c4c-ba33-ab1d85c54192,Encontro de Carros Antigos,2024-12-18T09:00:00Z,"Autódromo Internacional, Goiânia, BR",300,Automobile
@@ -9,3 +9,5 @@ b1b0b499-2f46-4146-b366-71206302bd30,Festival de Cinema Independente,2024-12-03T
 eb008799-44ec-447f-9eb5-483e1cfc3d9a,Seminário de Empreendedorismo,2024-12-07T09:00:00Z,"Centro Empresarial, São Paulo, BR",300,Business
 466db2d6-4a71-4dc9-a611-777b3c4b23cd,Conferência de Blockchain,2024-12-16T08:30:00Z,"Hub de Inovação, Curitiba, BR",350,Technology
 5ddc3f52-a403-42bd-9ab0-42455abc1622,Exposição de Arte Moderna,2024-12-06T09:00:00Z,"Museu de Arte, Recife, BR",200,Art
+65bd0c1e-6d76-4895-a277-3a939871c927,Cybersecurity Essentials,2025-02-08T16:00:00Z,"Universidade Federal do Ceará, Fortaleza, BR",100,Cybersecurity
+440d327b-5ab5-4264-be04-e792d35bbaa4,Web3 and Blockchain Meetup,2024-12-20T18:00:00Z,"Espaço Cubo, Rio de Janeiro, BR",150,Blockchain

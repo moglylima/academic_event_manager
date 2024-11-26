@@ -15,10 +15,16 @@ from app.services.event_service import (
 
 router = APIRouter()
 
-@router.get("/events/", response_model=dict, status_code=200)
+@router.get(
+    "/events/",
+    response_model=dict,
+    status_code=200,
+    summary="List all events",
+    description="Retrieve a list of all events stored in the system. Each event includes details such as title, date, location, capacity, and category."
+)
 def list_events():
     """
-    Retorna todos os eventos cadastrados no arquivo CSV.
+    Retrieve all events stored in the CSV file.
     """
     events = read_events()
     return {
@@ -28,12 +34,18 @@ def list_events():
     }
 
 
-@router.post("/events/", response_model=dict, status_code=201)
+@router.post(
+    "/events/",
+    response_model=dict,
+    status_code=201,
+    summary="Create a new event",
+    description="Create and register a new event in the system. The event will be assigned a unique ID automatically."
+)
 def create_event(event: EventCreateSchema):
     """
-    Adiciona um novo evento no arquivo CSV.
+    Add a new event to the system and store it in the CSV file.
     """
-    # Gera o UUID para o novo evento
+    # Generate a UUID for the new event
     event_to_write = EventSchema(id=uuid4(), **event.dict())
     write_event(event_to_write)
     return {
@@ -43,12 +55,18 @@ def create_event(event: EventCreateSchema):
     }
 
 
-@router.put("/events/{event_id}/", response_model=dict, status_code=200)
+@router.put(
+    "/events/{event_id}/",
+    response_model=dict,
+    status_code=200,
+    summary="Update an existing event",
+    description="Update the details of an existing event based on its unique ID."
+)
 def update_event(event_id: UUID, updated_event: EventCreateSchema):
     """
-    Atualiza um evento existente no arquivo CSV.
+    Update an existing event in the CSV file.
     """
-    # Busca o evento existente
+    # Find the existing event
     all_events = read_events()
     existing_event = next((e for e in all_events if e.id == event_id), None)
     if not existing_event:
@@ -57,7 +75,7 @@ def update_event(event_id: UUID, updated_event: EventCreateSchema):
             detail={"status": "error", "message": "Event not found."}
         )
 
-    # Cria um novo objeto EventSchema com os dados atualizados
+    # Create an updated event object
     updated_event_with_id = EventSchema(id=event_id, **updated_event.dict())
     update_event_csv(updated_event_with_id)
     return {
@@ -67,10 +85,16 @@ def update_event(event_id: UUID, updated_event: EventCreateSchema):
     }
 
 
-@router.delete("/events/{event_id}/", response_model=dict, status_code=200)
+@router.delete(
+    "/events/{event_id}/",
+    response_model=dict,
+    status_code=200,
+    summary="Delete an event",
+    description="Remove an event from the system using its unique ID."
+)
 def delete_event(event_id: UUID):
     """
-    Remove um evento do arquivo CSV.
+    Delete an event from the CSV file.
     """
     try:
         delete_event_csv(event_id)
@@ -85,10 +109,16 @@ def delete_event(event_id: UUID):
         )
 
 
-@router.get("/events/hash/", response_model=dict, status_code=200)
+@router.get(
+    "/events/hash/",
+    response_model=dict,
+    status_code=200,
+    summary="Get CSV file hash",
+    description="Calculate and return the SHA256 hash of the CSV file containing the events."
+)
 def get_csv_hash_route():
     """
-    Retorna o hash SHA256 do arquivo CSV.
+    Calculate the SHA256 hash of the CSV file.
     """
     hash_value = get_csv_hash()
     return {
@@ -98,10 +128,15 @@ def get_csv_hash_route():
     }
 
 
-@router.get("/events/compress/", status_code=200)
+@router.get(
+    "/events/compress/",
+    status_code=200,
+    summary="Download compressed CSV file",
+    description="Compress the CSV file containing the events into a ZIP archive and return it as a downloadable file."
+)
 def compress_csv_route():
     """
-    Compacta o arquivo CSV em um arquivo ZIP e retorna o arquivo.
+    Compress the CSV file and return it as a ZIP file.
     """
     zip_file_path = compress_csv_file()
     return FileResponse(
@@ -112,10 +147,16 @@ def compress_csv_route():
     )
 
 
-@router.get("/events/count/", response_model=dict, status_code=200)
+@router.get(
+    "/events/count/",
+    response_model=dict,
+    status_code=200,
+    summary="Count all events",
+    description="Return the total number of events currently stored in the system."
+)
 def count_events_route():
     """
-    Retorna a quantidade de eventos no arquivo CSV.
+    Count the total number of events in the CSV file.
     """
     count = count_events()
     return {
