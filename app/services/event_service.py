@@ -10,134 +10,109 @@ from app.config import CSV_FILE_PATH
 # Caminho do arquivo CSV
 CSV_FILE = CSV_FILE_PATH
 
+# Definimos o cabeçalho padrão para o arquivo CSV
+HEADERS = ["id", "title", "date", "location", "capacity", "category"]
+
 
 def ensure_csv():
     """
     Garante que o arquivo CSV tenha o cabeçalho correto.
-    Reescreve o cabeçalho se o arquivo estiver ausente, vazio ou com cabeçalho incorreto.
+    Se o arquivo não existir ou estiver vazio, cria um novo com o cabeçalho padrão.
     """
-    expected_headers = ["id", "title", "date", "location", "capacity", "category"]
-
-    # Caso o arquivo não exista, cria com o cabeçalho correto
-    if not os.path.exists(CSV_FILE):
+    if not os.path.exists(CSV_FILE) or os.path.getsize(CSV_FILE) == 0:
+        # Abre o arquivo em modo escrita ('w') e insere o cabeçalho
         with open(CSV_FILE, mode="w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
-            writer.writerow(expected_headers)
-        return
-
-    # Caso o arquivo exista, verifica se o cabeçalho está correto
-    with open(CSV_FILE, mode="r+", newline="", encoding="utf-8") as file:
-        reader = csv.reader(file)
-        first_row = next(reader, None)  # Lê a primeira linha (cabeçalho ou vazio)
-
-        # Se o cabeçalho está ausente ou mal formatado, reescreve
-        if not first_row or first_row != expected_headers:
-            file.seek(0)
-            writer = csv.writer(file)
-            writer.writerow(expected_headers)
-            remaining_rows = list(reader)  # Salva as linhas restantes (se houver)
-            for row in remaining_rows:
-                writer.writerow(row)
-            file.truncate()  # Remove qualquer dado remanescente após reescrever
+            writer.writerow(HEADERS)  # Escreve o cabeçalho
 
 
 def read_events() -> List[EventSchema]:
     """
-    Lê todos os eventos do arquivo CSV.
-    Garante que o cabeçalho esteja presente antes de tentar ler os registros.
+    Lê todos os eventos do arquivo CSV e retorna uma lista de objetos EventSchema.
     """
-    ensure_csv()  # Garante que o arquivo e o cabeçalho estejam prontos
-    events = []
+    ensure_csv()  # Garante que o arquivo CSV está configurado corretamente
     with open(CSV_FILE, mode="r", newline="", encoding="utf-8") as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            try:
-                event = EventSchema(
-                    id=UUID(row["id"]),
-                    title=row["title"],
-                    date=row["date"],
-                    location=row["location"],
-                    capacity=int(row["capacity"]),
-                    category=row["category"]
-                )
-                events.append(event)
-            except (KeyError, ValueError, Exception) as e:
-                print(f"Skipping invalid row: {row}. Error: {e}")
-    return events
+        reader = csv.DictReader(file)  # Lê o arquivo como dicionários baseados no cabeçalho
+        # Converte cada linha em um objeto EventSchema
+        return [
+            EventSchema(
+                id=UUID(row["id"]),
+                title=row["title"],
+                date=row["date"],
+                location=row["location"],
+                capacity=int(row["capacity"]),
+                category=row["category"]
+            )
+            for row in reader  # Itera sobre as linhas
+        ]
 
 
 def write_event(event: EventSchema):
     """
-    Adiciona um evento ao arquivo CSV.
-    Garante que o cabeçalho esteja presente antes de adicionar o registro.
+    Adiciona um novo evento ao arquivo CSV.
     """
-    ensure_csv()  # Garante que o cabeçalho esteja presente
+    ensure_csv()  # Garante que o arquivo CSV está configurado corretamente
     with open(CSV_FILE, mode="a", newline="", encoding="utf-8") as file:
-        writer = csv.writer(file)
+        writer = csv.writer(file)  # Abre o arquivo no modo de adição ('a')
+        # Escreve os dados do evento
         writer.writerow([event.id, event.title, event.date, event.location, event.capacity, event.category])
 
 
 def update_event_csv(updated_event: EventSchema):
     """
-    Atualiza um evento no arquivo CSV.
-    Garante que o cabeçalho esteja presente antes de reescrever o arquivo.
+    Atualiza os dados de um evento existente no arquivo CSV.
+    Se o evento com o ID correspondente for encontrado, ele será substituído pelos dados atualizados.
     """
-    events = read_events()
-    ensure_csv()  # Garante que o cabeçalho esteja presente
+    events = read_events()  # Lê todos os eventos no CSV
     with open(CSV_FILE, mode="w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
-        writer.writerow(["id", "title", "date", "location", "capacity", "category"])  # Cabeçalho
-        for event in events:
+        writer.writerow(HEADERS)  # Reescreve o cabeçalho
+        for event in events:  # Itera sobre os eventos
+            # Substitui o evento correspondente pelo evento atualizado
             if event.id == updated_event.id:
-                writer.writerow([updated_event.id, updated_event.title, updated_event.date,
-                                 updated_event.location, updated_event.capacity, updated_event.category])
-            else:
-                writer.writerow([event.id, event.title, event.date, event.location,
-                                 event.capacity, event.category])
+                event = updated_event
+            # Escreve o evento no arquivo
+            writer.writerow([event.id, event.title, event.date, event.location, event.capacity, event.category])
 
 
 def delete_event_csv(event_id: UUID):
     """
-    Remove um evento do arquivo CSV.
-    Garante que o cabeçalho esteja presente antes de reescrever o arquivo.
+    Remove um evento do arquivo CSV com base no ID fornecido.
+    Se o evento não for encontrado, lança uma exceção HTTP.
     """
-    events = read_events()
-    event_found = False
-    ensure_csv()  # Garante que o cabeçalho esteja presente
-
+    events = read_events()  # Lê todos os eventos no CSV
     with open(CSV_FILE, mode="w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
-        writer.writerow(["id", "title", "date", "location", "capacity", "category"])  # Cabeçalho
-
+        writer.writerow(HEADERS)  # Reescreve o cabeçalho
+        event_found = False  # Flag para verificar se o evento foi encontrado
         for event in events:
             if event.id == event_id:
-                event_found = True
-                continue  # Ignora o evento a ser excluído
+                event_found = True  # Marca que o evento foi encontrado
+                continue  # Pula a escrita desse evento, removendo-o
+            # Escreve os eventos restantes no arquivo
             writer.writerow([event.id, event.title, event.date, event.location, event.capacity, event.category])
-
-    if not event_found:
+    if not event_found:  # Se nenhum evento com o ID fornecido foi encontrado
         raise HTTPException(status_code=404, detail="Event not found.")
 
 
 def get_csv_hash() -> str:
     """
-    Retorna o hash SHA256 do arquivo CSV.
+    Retorna o hash SHA256 do arquivo CSV para verificar sua integridade.
     """
-    return generate_csv_hash(CSV_FILE)
+    return generate_csv_hash(CSV_FILE)  # Função externa calcula o hash do arquivo
 
 
 def compress_csv_file() -> str:
     """
-    Compacta o arquivo CSV em um arquivo ZIP.
+    Compacta o arquivo CSV em um arquivo ZIP e retorna o caminho do arquivo compactado.
     """
-    return zip_csv_file(CSV_FILE)
+    return zip_csv_file(CSV_FILE)  # Função externa realiza a compactação
+
 
 def count_events() -> int:
     """
-    Conta o número de eventos no arquivo CSV.
-    Garante que o cabeçalho esteja presente antes de realizar a contagem.
+    Conta o número de eventos no arquivo CSV (excluindo o cabeçalho).
     """
-    ensure_csv()  # Garante que o arquivo e o cabeçalho estão corretos
+    ensure_csv()  # Garante que o arquivo está configurado corretamente
     with open(CSV_FILE, mode="r", newline="", encoding="utf-8") as file:
-        reader = csv.DictReader(file)
-        return sum(1 for _ in reader)  # Conta o número de linhas no arquivo CSV
+        return sum(1 for _ in file) - 1  # Conta todas as linhas e subtrai o cabeçalho
